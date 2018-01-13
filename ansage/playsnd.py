@@ -69,7 +69,7 @@ def _playsoundOSX(sound, block = True):
 
 def _playsoundNix(sound, block = True):
     import os
-    os.system("mplayer  -ao alsa -really-quiet -noconsolecontrols"+sound)
+    os.system("mplayer  -ao alsa -really-quiet -noconsolecontrols "+sound)
 
 from platform import system
 system = system()
