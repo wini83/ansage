@@ -9,9 +9,6 @@ import time
 
 import playsnd
 from gtts import gTTS
-from fileinput import input
-
-
 
 def downloadMP3(text,outputFile):
 	try:
