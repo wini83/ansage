@@ -39,33 +39,6 @@ def _playsoundWin(sound, block = True):
     if block:
         sleep(float(durationInMS) / 1000.0)
 
-def _playsoundOSX(sound, block = True):
-    '''
-    Utilizes AppKit.NSSound. Tested and known to work with MP3 and WAVE on
-    OS X 10.11 with Python 2.7. Probably works with anything QuickTime supports.
-    Probably works on OS X 10.5 and newer. Probably works with all versions of
-    Python.
-
-    Inspired by (but not copied from) Aaron's Stack Overflow answer here:
-    http://stackoverflow.com/a/34568298/901641
-
-    I never would have tried using AppKit.NSSound without seeing his code.
-    '''
-    from AppKit     import NSSound
-    from Foundation import NSURL
-    from time       import sleep
-
-    if '://' not in sound:
-        if not sound.startswith('/'):
-            from os import getcwd
-            sound = getcwd() + '/' + sound
-        sound = 'file://' + sound
-    url   = NSURL.URLWithString_(sound)
-    sound = NSSound.alloc().initWithContentsOfURL_byReference_(url, True)
-    sound.play()
-
-    if block:
-        sleep(sound.duration())
 
 def _playsoundNix(sound, block = True):
     import os
@@ -76,8 +49,6 @@ system = system()
 
 if system == 'Windows':
     playsound = _playsoundWin
-elif system == 'Darwin':
-    playsound = _playsoundOSX
 else:
     playsound = _playsoundNix
 
