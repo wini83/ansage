@@ -29,39 +29,33 @@ def make_public_task(task):
     new_task = {}
     for field in task:
         if field == 'id':
-            new_task['uri'] = url_for('get_task', task_id=task['id'], _external=True)
+            new_task['uri'] = url_for('get_announcement', task_id=task['id'], _external=True)
         else:
             new_task[field] = task[field]
     return new_task
 
-tasks = [
+tasks= [
     {
         'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol', 
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web', 
-        'done': False
+        'text': u'Pociąg osobowy do Grodziska Wielkopolskiego odjedzie z toru pierwszego przy peronie drugim',
+        'lang': u'pl', 
+        'fromTTS': True,
+        'played': False
     }
 ]
 
 from flask import abort
 
-@app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['GET'])
-def get_task(task_id):
+@app.route('/pa/api/v1.0/anouncements/<int:task_id>', methods=['GET'])
+def get_announcement(task_id):
     task = [task for task in tasks if task['id'] == task_id]
     if len(task) == 0:
         abort(404)
     return jsonify({'task': task[0]})
 
 
-@app.route('/todo/api/v1.0/tasks', methods=['GET'])
-@auth.login_required
-def get_tasks():
+@app.route('/pa/api/v1.0/anouncements', methods=['GET'])
+def get_announcements():
     return jsonify({'tasks': [make_public_task(task) for task in tasks]})
 
 from flask import request
@@ -70,16 +64,17 @@ from flask import request
 
 
 @auth.login_required
-@app.route('/todo/api/v1.0/tasks', methods=['POST'])
-def create_task():
-    if not request.json or not 'title' in request.json:
+@app.route('/pa/api/v1.0/anouncements', methods=['POST'])
+def create_anouncement():
+    if not request.json or not 'text' in request.json:
         abort(400)
     task = {
         'id': tasks[-1]['id'] + 1,
-        'title': request.json['title'],
-        'description': request.json.get('description', ""),
-        'done': False
-    }
+        'text': request.json['text'],
+        'lang': request.json.get('lang', ""),
+        'played': False,
+        'fromTTS':True
+    }    
     tasks.append(task)
     return jsonify({'task': task}), 201
 
