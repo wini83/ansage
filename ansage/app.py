@@ -74,8 +74,11 @@ def create_anouncement():
         'lang': request.json.get('lang', ""),
         'played': False,
         'fromTTS':True
-    }    
+    }
+    import engine
+    engine.downloadMP3(task['text'],'dupa.mp3')   
     tasks.append(task)
+
     return jsonify({'task': task}), 201
 
 if __name__ == '__main__':
