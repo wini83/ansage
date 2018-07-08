@@ -102,3 +102,4 @@ ENV/
 /.project
 /.pydevproject
 /output.mp3
+/crud.sqlite
