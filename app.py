@@ -1,6 +1,7 @@
 #!flask/bin/python
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify
+from flask import abort
 
 app = Flask(__name__)
 
@@ -44,7 +45,6 @@ tasks= [
     }
 ]
 
-from flask import abort
 
 @app.route('/pa/api/v1.0/anouncements/<int:task_id>', methods=['GET'])
 def get_announcement(task_id):

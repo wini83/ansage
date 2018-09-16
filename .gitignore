@@ -103,3 +103,4 @@ ENV/
 /.pydevproject
 /output.mp3
 /crud.sqlite
+/ansage.db
