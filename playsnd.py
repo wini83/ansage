@@ -13,6 +13,7 @@ def _playsoundWin(sound, block = True):
     mixer.music.play()
     while mixer.music.get_busy():
         pygame.time.Clock().tick(10)
+    mixer.music.unload()
 
 def _playsoundNix(sound, block = True):
     import os

@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-DELAY_AMPLIFIER = 2
-DELAY_SPEAKERS = 1
+import os
+import time
+import playsnd
+from gtts import gTTS
 
 try:
     import RPi.GPIO as GPIO
 except ImportError:
     print("This is not RPi!")
 
-import time
+DELAY_AMPLIFIER = 2
+DELAY_SPEAKERS = 1
 
-import playsnd
-from gtts import gTTS
+
 
 
 def downloadMP3(text, outputFile):
@@ -22,6 +24,16 @@ def downloadMP3(text, outputFile):
     except Exception:
         return False
 
+
+def say(payload):
+    file = "output.mp3"
+    result =  downloadMP3(payload, file)
+    if(result):
+        play_announcement_simple(file)
+        os.remove(file)
+        return True
+    else:
+        return False
 
 def play_announcement_simple(file_name):
     try:
@@ -34,7 +46,7 @@ def play_announcement_simple(file_name):
         return False
 
 
-def playAnnoucement(file_name):
+def play_annoucement(file_name):
     tab = [17, 27]
     try:
         GPIO.setmode(GPIO.BCM)  # (GPIO.BOARD)
