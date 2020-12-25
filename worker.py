@@ -1,45 +1,62 @@
 import paho.mqtt.client as mqtt
 import json
 import time
-
+import sys
+from announcer import Announcer
 import config
+
+import signal
 
 
 class Worker(object):
+
     def __init__(self):
-        self.valve = rt2000BT.Valve(config.mac, None)
+        self.client = mqtt.Client()
+        signal.signal(signal.SIGINT, self.signal_handler)
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+        self.client.on_disconnect = self.on_disconnect
+        self.client.username_pw_set(config.mqtt_user, password=config.mqtt_pass)
+        self.announcer = Announcer()
+        self.announcer.on_status_change = self.status_change
+
+    def signal_handler(self, signal, frame):
+        print('You pressed Ctrl+C - or killed me with -2')
+        print("disconnect handler")
+        self.client.publish("{}/state".format(config.base_topic), payload='offline')
+        self.client.disconnect()
+        sys.exit(0)
+
+    def status_change(self, message):
+        print(message)
+        self.client.publish("{}/log".format(config.base_topic), payload=message)
+
 
     def on_connect(self, client, userdata, flags, rc):
         print("error = " + str(rc))
+        self.client.publish("{}/state".format(config.base_topic), payload='online')
+        self.client.subscribe("{}/announce".format(config.base_topic))
 
-        client.subscribe("domoticz/out")
+    def on_disconnect(self, userdata, flags, rc):
+        print("disconnect on")
+        self.client.publish("{}/state".format(config.base_topic), payload='offline')
 
     def on_message(self, client, userdata, msg):
         my_json = msg.payload.decode('utf8')
-        data = json.loads(my_json)
-        idx = int(data["idx"])
-        if idx == config.thermostat_idx:
-            new__temp = float(data["svalue1"])
-            print("New value: {}C".format(new__temp))
-            print("Valve last: {}C".format(self.valve.set_point_temp))
-            self.valve.update_temperature(new__temp)
+        try:
+            data = json.loads(my_json)
+            print(data)
+            payload = data['payload']
+            text = '{"payload": "' + payload + '"}'
+            self.client.publish("{}/log".format(config.base_topic), payload=payload)
+            self.announcer.say(payload)
+        except:
+            e = sys.exc_info()[0]
+            print(e)
+            self.client.publish("{}/log".format(config.base_topic), payload='wrong announce structure')
 
     def run(self):
-        valve = rt2000BT.Valve(config.mac, None)
-
-        poller.poll_valve(valve)
-
-        client = mqtt.Client()
-        client.on_connect = self.on_connect
-        client.on_message = self.on_message
-        client.username_pw_set(config.mqtt_user, password=config.mqtt_pass)
-        client.connect(config.mqtt_server_ip, config.mqtt_server_port, 60)
-
-        client.loop_start()
-
+        self.client.connect(config.mqtt_server_ip, config.mqtt_server_port, 60)
+        self.client.loop_start()
         while True:
-            time.sleep(600)
-            print(time.ctime())
-            client.loop_stop()
-            poller.poll_valve(valve)
-            client.loop_start()
+            time.sleep(10)
