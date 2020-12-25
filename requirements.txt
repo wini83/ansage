@@ -1,0 +1,4 @@
+python-daemon
+paho-mqtt
+gtts
+pygame

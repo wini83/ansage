@@ -47,6 +47,7 @@ class Worker(object):
             data = json.loads(my_json)
             print(data)
             payload = data['payload']
+            data.
             text = '{"payload": "' + payload + '"}'
             self.client.publish("{}/log".format(config.base_topic), payload=payload)
             self.announcer.say(payload)
