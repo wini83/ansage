@@ -50,8 +50,7 @@ class Worker(object):
             text = '{"payload": "' + payload + '"}'
             self.client.publish("{}/log".format(config.base_topic), payload=payload)
             self.announcer.say(payload)
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             print(e)
             self.client.publish("{}/log".format(config.base_topic), payload='wrong announce structure')
 
