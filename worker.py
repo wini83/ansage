@@ -49,10 +49,14 @@ class Worker(object):
             payload = data['payload']
             text = '{"payload": "' + payload + '"}'
             self.client.publish("{}/log".format(config.base_topic), payload=payload)
-            self.announcer.say(payload)
         except Exception as e:
             print(e)
             self.client.publish("{}/log".format(config.base_topic), payload='wrong announce structure')
+        try:
+            self.announcer.say(payload)
+        except Exception as e:
+            print(e)
+            self.client.publish("{}/log".format(config.base_topic), payload='Playing failed')
 
     def run(self):
         self.client.connect(config.mqtt_server_ip, config.mqtt_server_port, 60)
