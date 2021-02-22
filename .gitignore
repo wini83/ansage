@@ -106,3 +106,5 @@ ENV/
 /output.mp3
 /crud.sqlite
 /ansage.db
+
+.idea
