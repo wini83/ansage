@@ -52,9 +52,11 @@ Now that we have setup everything correctly we can start Megaphone2MQTT.
     cd /opt/megaphone2mqtt
     python3 main.py
 When started successfully, you will see something like:
+```
     pygame 2.0.1 (SDL 2.0.9, Python 3.7.3)
     Hello from the pygame community. https://www.pygame.org/contribute.html
     error = 0
+```
 Zigbee2MQTT can be stopped by pressing `CTRL + C.`
 
 ### (Optional) Running as a daemon with systemctl
