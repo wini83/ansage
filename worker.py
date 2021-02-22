@@ -35,6 +35,9 @@ class Worker(object):
         self.announcer = Announcer()
         self.announcer.on_status_change = self.status_change
 
+    def scan_for_chimes(self):
+        pass
+
     # noinspection PyUnusedLocal
     def signal_handler(self, signum, frame):
         print('You pressed Ctrl+C - or killed me with -2')
