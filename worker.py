@@ -2,7 +2,6 @@ import json
 import signal
 import sys
 import time
-
 import paho.mqtt.client as mqtt
 
 from announcer import Announcer
