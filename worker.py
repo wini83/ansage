@@ -11,16 +11,18 @@ import signal
 class Worker(object):
 
     def __init__(self):
-        self.client = mqtt.Client()
+        self.client: mqtt.Client = mqtt.Client()
         signal.signal(signal.SIGINT, self.signal_handler)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.on_disconnect = self.on_disconnect
         self.client.username_pw_set(config.mqtt_user, password=config.mqtt_pass)
+        self.client.will_set("{}/state".format(config.base_topic), payload="offline", retain=True)
         self.announcer = Announcer()
         self.announcer.on_status_change = self.status_change
 
-    def signal_handler(self, signal, frame):
+    # noinspection PyUnusedLocal
+    def signal_handler(self, signum, frame):
         print('You pressed Ctrl+C - or killed me with -2')
         print("disconnect handler")
         self.client.publish("{}/state".format(config.base_topic), payload='offline')
@@ -31,32 +33,38 @@ class Worker(object):
         print(message)
         self.client.publish("{}/log".format(config.base_topic), payload=message)
 
-
+    # noinspection PyUnusedLocal
     def on_connect(self, client, userdata, flags, rc):
         print("error = " + str(rc))
         self.client.publish("{}/state".format(config.base_topic), payload='online')
         self.client.subscribe("{}/announce".format(config.base_topic))
 
+    # noinspection PyUnusedLocal
     def on_disconnect(self, userdata, flags, rc):
         print("disconnect on")
-        self.client.publish("{}/state".format(config.base_topic), payload='offline')
+        self.client.publish("{}/state".format(config.base_topic), payload='offline', retain=True)
 
+    # noinspection PyUnusedLocal
     def on_message(self, client, userdata, msg):
         my_json = msg.payload.decode('utf8')
+        is_parsing_ok: bool = False
+        payload = None
         try:
             data = json.loads(my_json)
             print(data)
             payload = data['payload']
             text = '{"payload": "' + payload + '"}'
             self.client.publish("{}/log".format(config.base_topic), payload=payload)
+            is_parsing_ok = True
         except Exception as e:
             print(e)
             self.client.publish("{}/log".format(config.base_topic), payload='wrong announce structure')
-        try:
-            self.announcer.say(payload)
-        except Exception as e:
-            print(e)
-            self.client.publish("{}/log".format(config.base_topic), payload='Playing failed')
+        if is_parsing_ok:
+            try:
+                self.announcer.say(payload)
+            except Exception as e:
+                print(e)
+                self.client.publish("{}/log".format(config.base_topic), payload='Playing failed')
 
     def run(self):
         self.client.connect(config.mqtt_server_ip, config.mqtt_server_port, 60)
