@@ -14,7 +14,7 @@ sudo chown -R pi:pi /opt/megaphone2mqtt
 
 # Install dependencies (as user "pi")
 cd /opt/megaphone2mqtt
-python3 pip install --upgrade -r pip-requirements.txt
+pip3 install --upgrade -r requirements.txt
 ```    
 
 ### Configuring:
@@ -28,27 +28,29 @@ nano /opt/megaphone2mqtt/config.py
 For a basic configuration, the default settings are probably good. The only thing we need to change is the MQTT server url and authentication (if applicable). This can be done by changing the section below in your configuration.yaml.
 
 ```python
-#MQTT Server connection
-mqtt_server_ip = "192.168.1.1"
-mqtt_server_port = 1883
-mqtt_user = "user"
-mqtt_pass = "pass"
+# noinspection PyUnresolvedReferences
+from ext_amp_conf import ExternalAmplifierConfig
 
-#mqtt topic
+# MQTT Server connection
+mqtt_server_ip = "192.168.2.100"
+mqtt_server_port = 1883
+mqtt_user = "wini"
+mqtt_pass = "dupa"
+
+# mqtt topic
 
 base_topic = "megaphone"
 
-#control external Amplifier with GPIO
+# control external Amplifier with GPIO
 
-ext_amplifier_control = False
-delay_amplifier = 2
-delay_speakers = 1
-gpio_amplifier = 17
-gpio_speakers = 27
+ext_amplifier = None
+
+# ext_amplifier = ExternalAmplifierConfig(gpio_amplifier=17,gpio_speakers=27,delay_amplifier=2, delay_speakers=1)
 
 
-#Chimes
+# Chimes
 mp3_filename = "output.mp3"
+
 chime_filename = "gong.wav"
 ```
 Save the file and exit.
