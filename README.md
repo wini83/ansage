@@ -32,10 +32,10 @@ For a basic configuration, the default settings are probably good. The only thin
 from ext_amp_conf import ExternalAmplifierConfig
 
 # MQTT Server connection
-mqtt_server_ip = "192.168.2.100"
+mqtt_server_ip = "192.168.1.1"
 mqtt_server_port = 1883
-mqtt_user = "wini"
-mqtt_pass = "dupa"
+mqtt_user = "user"
+mqtt_pass = "pass"
 
 # mqtt topic
 
