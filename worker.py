@@ -78,7 +78,7 @@ class Worker(object):
             self.client.publish(f"{self.mqtt_base_topic}/log", payload='wrong announce structure')
         if is_parsing_ok:
             try:
-                self.announcer.say(payload)
+                self.announcer.say(payload, volume=0.1)
             except Exception as e:
                 print(e)
                 self.client.publish(f"{self.mqtt_base_topic}/log", payload='Playing failed')

@@ -15,9 +15,11 @@ except ImportError:
     print("This is not RPi!")
 
 
-def play_file(filename):
+def play_file(filename, volume: float = 1.0):
     mixer.init()
     mixer.music.load(filename)
+    mixer.music.set_volume(volume)
+    print(volume)
     mixer.music.play()
     while mixer.music.get_busy():
         gtime.Clock().tick(10)
@@ -43,41 +45,41 @@ class Announcer:
             self.on_status_change("Error! Problem with downloading")
             return False
 
-    def say(self, payload, play_chime="gong", lang="pl"):
+    def say(self, payload, play_chime="gong", lang="pl", volume: float = 1.0):
 
         result = self.download_mp3(payload, lang)
         if result:
             self.on_status_change("Announcing...")
             if self.ext_amp_conf is None:
-                self._play_announcement(play_chime)
+                self._play_announcement(play_chime, volume)
             else:
-                self._play_announcement_ext_amp(play_chime)
+                self._play_announcement_ext_amp(play_chime, volume)
             self.on_status_change("Announce completed")
             os.remove(self.mp3_filename)
             return True
         else:
             return False
 
-    def _play_announcement(self, play_chime="gong"):
+    def _play_announcement(self, play_chime="gong", volume: float = 1.0):
         try:
-            self._play_chime(play_chime)
-            play_file(self.mp3_filename)
+            self._play_chime(play_chime,volume)
+            play_file(self.mp3_filename, volume)
             return True
         except KeyboardInterrupt:
             return False
 
     # noinspection PyMethodMayBeStatic
-    def _play_chime(self, chime="gong"):
+    def _play_chime(self, chime="gong", volume: float = 1.0):
         if chime == "gong":
-            play_file(f'{chime}.wav')
+            play_file(f'{chime}.wav', volume)
             time.sleep(1)
         elif chime == "none":
             time.sleep(0.001)
         else:
-            play_file(f'gong.wav')
+            play_file(f'gong.wav', volume)
             time.sleep(1)
 
-    def _play_announcement_ext_amp(self, play_chime="gong"):
+    def _play_announcement_ext_amp(self, play_chime="gong", volume: float = 1.0):
         if self.ext_amp_conf is None:
             return False
         tab = [self.ext_amp_conf.gpio_amplifier, self.ext_amp_conf.delay_speakers]
@@ -87,8 +89,8 @@ class Announcer:
             time.sleep(self.ext_amp_conf.delay_amplifier)
             GPIO.setup(self.ext_amp_conf.gpio_speakers, GPIO.OUT)
             time.sleep(self.ext_amp_conf.delay_speakers)
-            self._play_chime(play_chime)
-            play_file(self.mp3_filename)
+            self._play_chime(play_chime, volume)
+            play_file(self.mp3_filename, volume)
             GPIO.cleanup(27)
             time.sleep(self.ext_amp_conf.delay_amplifier)
             GPIO.cleanup(tab)
