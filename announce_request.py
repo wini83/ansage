@@ -32,7 +32,37 @@ def validate_lang(text) -> Tuple[bool, str]:
         else:
             return False, 'Language can not be empty'
     else:
-        return False, 'Payload text is not a string'
+        return False, 'Language is not a string'
+
+
+def validate_chime(chime) -> Tuple[bool, str]:
+    if chime is None:
+        return True, ""
+    if isinstance(chime, str):
+        if chime != "":
+            chimes = ["none", "gong"]
+            if chime in chimes:
+                return True, f"Chime {chime} is not supported"
+            else:
+                return False, 'Chime can not be empty'
+        else:
+            return False, 'Chime can not be empty'
+    else:
+        return False, 'Chime text is not a string'
+
+
+def validate_volume(value) -> Tuple[bool, str]:
+    if value is None:
+        return True, ""
+    try:
+        volume = float(value)
+        if 0 <= volume <= 1.0:
+            return True, ""
+        else:
+            return False, "Volume out of Range"
+    except ValueError:
+        print("Not a float")
+        return False, 'Language can not be empty'
 
 
 class AnnounceRequest:
