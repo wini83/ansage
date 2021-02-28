@@ -16,4 +16,4 @@ def status_change(message):
 pa = Announcer(mp3_filename=config.mp3_filename,
                ext_amp_conf=config.ext_amplifier)
 pa.on_status_change = status_change
-pa.say(inp2, play_chime="gong")
+pa.announce(inp2, play_chime="gong")

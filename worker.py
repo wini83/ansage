@@ -1,9 +1,10 @@
-import json
 import signal
 import sys
 import time
+
 import paho.mqtt.client as mqtt
 
+from announce_request import AnnounceRequest
 from announcer import Announcer
 from ext_amp_conf import ExternalAmplifierConfig
 
@@ -65,23 +66,17 @@ class Worker(object):
     def on_message(self, client, userdata, msg):
         my_json = msg.payload.decode('utf8')
         is_parsing_ok: bool = False
-        payload = None
-        try:
-            data = json.loads(my_json)
-            print(data)
-            payload = data['payload']
-            text = '{"payload": "' + payload + '"}'
-            self.client.publish(f"{self.mqtt_base_topic}/log", payload=payload)
-            is_parsing_ok = True
-        except Exception as e:
-            print(e)
-            self.client.publish(f"{self.mqtt_base_topic}/log", payload='wrong announce structure')
-        if is_parsing_ok:
+        req: AnnounceRequest = AnnounceRequest()
+        req.load_from_json(my_json)
+        if req.is_valid:
             try:
-                self.announcer.say(payload, volume=0.1)
+                self.client.publish(f"{self.mqtt_base_topic}/log", payload=req.__str__())
+                self.announcer.announce(req.payload, volume=req.volume, play_chime=req.chime, lang=req.lang)
             except Exception as e:
                 print(e)
                 self.client.publish(f"{self.mqtt_base_topic}/log", payload='Playing failed')
+        else:
+            self.client.publish(f"{self.mqtt_base_topic}/log", payload='wrong announce structure')
 
     def run(self):
         self.client.connect(self.mqtt_server_ip, self.mqtt_server_port, 60)

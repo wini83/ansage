@@ -45,7 +45,7 @@ class Announcer:
             self.on_status_change("Error! Problem with downloading")
             return False
 
-    def say(self, payload, play_chime="gong", lang="pl", volume: float = 1.0):
+    def announce(self, payload, play_chime="gong", lang="pl", volume: float = 1.0):
 
         result = self.download_mp3(payload, lang)
         if result:
