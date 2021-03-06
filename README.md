@@ -85,9 +85,9 @@ Publishing messages to this topic allows you to making audio announcements via M
 ```
 {
   "payload": "System started", // text to announce
-  "chime": true, // (optional, default = true - plays chime before announcement (not yet implemented)
-  "lang": "pl", // (optional) Language of the announcement (not yet implemented)
-  "slow": true, // (optional)(not yet implemented)
+  "chime": "gong", // (optional), default = gong - plays chime before announcement (not yet implemented)
+  "lang": "pl", // (optional) Language (default is "pl")
+  "volume": 0.8, // (optional) (default  = 1.0)
 }
 ```
 
