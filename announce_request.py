@@ -61,8 +61,7 @@ def validate_volume(value) -> Tuple[bool, str]:
         else:
             return False, "Volume out of Range"
     except ValueError:
-        print("Not a float")
-        return False, 'Language can not be empty'
+        return False, 'Volume is not a float'
 
 
 class AnnounceRequest:
@@ -80,16 +79,32 @@ class AnnounceRequest:
     def load_from_json(self, json_str) -> Tuple[bool, str]:
         try:
             data = json.loads(json_str)
-            print(data)
             payload_text = data.get("payload")
             text_valid, text_err = validate_text(payload_text)
             if text_valid:
                 self.payload = payload_text
             else:
                 return False, text_err
-            self.lang = data["lang"]
-            self.chime = data["chime"]
-            self.volume = data["volume"]
+            payload_lang = data.get("lang")
+            lang_valid, text_err = validate_lang(payload_lang)
+            if lang_valid:
+                self.lang = payload_lang
+            else:
+                return False, text_err
+            payload_chime = data.get("chime")
+            print(payload_chime)
+            chime_valid, text_err = validate_chime(payload_chime)
+            if chime_valid:
+                self.chime = payload_chime
+            else:
+                return False, text_err
+            payload_volume = data.get("volume")
+            volume_valid, text_err = validate_volume(payload_volume)
+            if volume_valid:
+                self.volume = float(payload_volume)
+            else:
+                return False, text_err
+            return True, "OK"
 
         except JSONDecodeError as e:
             print(e)
@@ -97,4 +112,19 @@ class AnnounceRequest:
 
     @property
     def is_valid(self) -> bool:
+        res_valid, err = validate_text(self.payload)
+        lang_valid, err_lang = validate_lang(self.lang)
+        vol_valid, err_vol = validate_volume(self.volume)
+        chime_valid, err_vol = validate_chime(self.chime)
+        if res_valid and lang_valid and vol_valid and chime_valid:
+            if (self.lang is not None) and (self.volume is not None) and (self.chime is not None):
+                return True
         return False
+
+    def set_default_values(self):
+        if self.lang is None:
+            self.lang = "pl"
+        if self.chime is None:
+            self.chime = "gong"
+        if self.volume is None:
+            self.volume = 1.0

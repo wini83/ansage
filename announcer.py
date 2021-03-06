@@ -8,6 +8,8 @@ from pygame import mixer
 from pygame import time as gtime
 from ext_amp_conf import ExternalAmplifierConfig
 
+from announce_request import AnnounceRequest
+
 try:
     # noinspection PyUnresolvedReferences
     import RPi.GPIO as GPIO
@@ -45,15 +47,20 @@ class Announcer:
             self.on_status_change("Error! Problem with downloading")
             return False
 
-    def announce(self, payload, play_chime="gong", lang="pl", volume: float = 1.0):
-
-        result = self.download_mp3(payload, lang)
-        if result:
+    def announce(self, request: AnnounceRequest):
+        if not request.is_valid:
+            self.on_status_change("Request not valid")
+            return False
+        if request.lang is None:
+            download_ok = self.download_mp3(request.payload)
+        else:
+            download_ok = self.download_mp3(request.payload, request.lang)
+        if download_ok:
             self.on_status_change("Announcing...")
             if self.ext_amp_conf is None:
-                self._play_announcement(play_chime, volume)
+                self._play_announcement(request.chime, request.volume)
             else:
-                self._play_announcement_ext_amp(play_chime, volume)
+                self._play_announcement_ext_amp(request.chime, request.volume)
             self.on_status_change("Announce completed")
             os.remove(self.mp3_filename)
             return True
@@ -62,7 +69,7 @@ class Announcer:
 
     def _play_announcement(self, play_chime="gong", volume: float = 1.0):
         try:
-            self._play_chime(play_chime,volume)
+            self._play_chime(play_chime, volume)
             play_file(self.mp3_filename, volume)
             return True
         except KeyboardInterrupt:

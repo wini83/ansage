@@ -65,18 +65,18 @@ class Worker(object):
     # noinspection PyUnusedLocal
     def on_message(self, client, userdata, msg):
         my_json = msg.payload.decode('utf8')
-        is_parsing_ok: bool = False
         req: AnnounceRequest = AnnounceRequest()
-        req.load_from_json(my_json)
-        if req.is_valid:
+        json_valid, err = req.load_from_json(my_json)
+        if json_valid:
+            req.set_default_values()
             try:
                 self.client.publish(f"{self.mqtt_base_topic}/log", payload=req.__str__())
-                self.announcer.announce(req.payload, volume=req.volume, play_chime=req.chime, lang=req.lang)
+                self.announcer.announce(req)
             except Exception as e:
                 print(e)
                 self.client.publish(f"{self.mqtt_base_topic}/log", payload='Playing failed')
         else:
-            self.client.publish(f"{self.mqtt_base_topic}/log", payload='wrong announce structure')
+            self.client.publish(f"{self.mqtt_base_topic}/log", payload=err)
 
     def run(self):
         self.client.connect(self.mqtt_server_ip, self.mqtt_server_port, 60)
